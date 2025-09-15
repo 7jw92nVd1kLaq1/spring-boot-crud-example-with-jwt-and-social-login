@@ -2,7 +2,6 @@ package com.basicrud.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,11 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.basicrud.backend.domain.User;
 import com.basicrud.backend.dto.LoginRequest;
 import com.basicrud.backend.dto.LoginResponse;
 import com.basicrud.backend.dto.RefreshRequest;
 import com.basicrud.backend.dto.RefreshResponse;
-import com.basicrud.backend.services.TokenService;
+import com.basicrud.backend.dto.UserCreateRequest;
+import com.basicrud.backend.dto.UserCreatedResponse;
+import com.basicrud.backend.services.AuthService;
 
 import jakarta.validation.Valid;
 
@@ -24,15 +26,15 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
+    private final AuthService authService;
 
     @Autowired
     public AuthController(
         AuthenticationManager authenticationManager,
-        TokenService tokenService
+        AuthService authService
     ) {
         this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
+        this.authService = authService;
     }
     
     @PostMapping("/login")
@@ -45,17 +47,27 @@ public class AuthController {
         );
         
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        LoginResponse response = tokenService.generateTokens(Long.parseLong(userDetails.getUsername()));
+        LoginResponse response = authService.generateTokens(Long.parseLong(userDetails.getUsername()));
 
         return ResponseEntity.ok(response);
     }
 
+
+    @PostMapping("/register")
+    public ResponseEntity<UserCreatedResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
+        User newUser = authService.registerUser(request);
+        UserCreatedResponse response = new UserCreatedResponse(
+            newUser.getId()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refreshToken(
-        @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody RefreshRequest refreshRequest
     ) {
-        String accessToken = tokenService.generateAccessToken(refreshRequest.refreshToken());
+        String accessToken = authService.generateAccessToken(refreshRequest.refreshToken());
         RefreshResponse response = new RefreshResponse(accessToken);
         return ResponseEntity.ok(response);
     }

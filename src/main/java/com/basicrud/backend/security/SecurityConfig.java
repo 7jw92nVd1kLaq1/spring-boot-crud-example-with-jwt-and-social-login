@@ -51,9 +51,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/users",
                     "/api/auth/login",
+                    "/api/auth/register",
                     "/api/auth/refresh"
                 ).permitAll()
-                .anyRequest().authenticated()                  // Secure everything else
+                .anyRequest().authenticated() 
             );
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.basicrud.backend.domain.RefreshToken;
 import com.basicrud.backend.domain.User;
 import com.basicrud.backend.dto.LoginResponse;
+import com.basicrud.backend.dto.UserCreateRequest;
 import com.basicrud.backend.repositories.RefreshTokenRepository;
 import com.basicrud.backend.repositories.UserRepository;
 import com.basicrud.backend.utils.JWTUtils;
@@ -20,16 +21,28 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 
 @Service
-public class TokenService {
+public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final UserService userService;
     private final JWTUtils jwtUtils;
 
     @Autowired
-    public TokenService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository, JWTUtils jwtUtils) {
+    public AuthService(
+        UserRepository userRepository, 
+        RefreshTokenRepository refreshTokenRepository, 
+        UserService userService,
+        JWTUtils jwtUtils
+    ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userService = userService;
         this.jwtUtils = jwtUtils;
+    }
+
+    public User registerUser(UserCreateRequest request) {
+        return userService.createUser(request);
     }
 
     public String generateAccessToken(String refreshToken) {

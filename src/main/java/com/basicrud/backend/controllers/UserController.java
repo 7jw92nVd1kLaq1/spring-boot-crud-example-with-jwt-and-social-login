@@ -8,18 +8,12 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.basicrud.backend.domain.User;
-import com.basicrud.backend.dto.UserCreateRequest;
-import com.basicrud.backend.dto.UserCreatedResponse;
 import com.basicrud.backend.dto.UserDetailResponse;
 import com.basicrud.backend.services.UserService;
-
-import jakarta.validation.Valid;
 
 
 @RestController
@@ -68,15 +62,6 @@ public class UserController {
             userEntity.getNickname()
         );
 
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping
-    public ResponseEntity<UserCreatedResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
-        User newUser = userService.createUser(request);
-        UserCreatedResponse response = new UserCreatedResponse(
-            newUser.getId()
-        );
         return ResponseEntity.ok(response);
     }
 }
